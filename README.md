@@ -1,10 +1,14 @@
 # Spring-Blog
 
 ![Programming Language](https://img.shields.io/badge/Java-red?style=flat&logo=openjdk&logoColor=white)
- ![Framework](https://img.shields.io/badge/Spring%20Framework-green?style=flat&logo=spring&logoColor=white) ![Framework](https://img.shields.io/badge/AngularJS-darkred?style=flat&logo=angular&logoColor=white) ![Framework](https://img.shields.io/badge/Query-blue?style=flat&logo=jquery&logoColor=white) ![Framework](https://img.shields.io/badge/Bootstrap-purple?style=flat&logo=bootstrap&logoColor=white)
-![Database](https://img.shields.io/badge/PostgreSQL-darkblue?logo=postgresql&logoColor=white) ![ORM](https://img.shields.io/badge/Hibernate-beige?style=flat&logo=hibernate&logoColor=white)    
+
+![Framework](https://img.shields.io/badge/Spring%20Framework-green?style=flat&logo=spring&logoColor=white) ![Framework](https://img.shields.io/badge/AngularJS-darkred?style=flat&logo=angular&logoColor=white) ![Framework](https://img.shields.io/badge/Query-blue?style=flat&logo=jquery&logoColor=white) ![Framework](https://img.shields.io/badge/Bootstrap-purple?style=flat&logo=bootstrap&logoColor=white)
+
+![Database](https://img.shields.io/badge/PostgreSQL-darkblue?logo=postgresql&logoColor=white) ![ORM](https://img.shields.io/badge/Hibernate-beige?style=flat&logo=hibernate&logoColor=white)  
+
 ![Platform: Web](https://img.shields.io/badge/Platform-Web-blue?logo=google-chrome)
-![Last Commit](https://img.shields.io/github/last-commit/ander1code/spring-blog?color=yellow&logo=github) ![Size](https://img.shields.io/github/repo-size/ander1code/spring-blog?color=blue&logo=files) ![License](https://img.shields.io/github/license/ander1code/spring-blog?color=black&logo=open-source-initiative)
+
+![Last Commit](https://img.shields.io/github/last-commit/ander1code/spring-blog?color=yellow&logo=github) 
 
 ---
 
