@@ -39,10 +39,8 @@ public class Post implements Serializable {
     @Column(name = "TEXT", length = 10485760, nullable = false)
     private String text;
 
-    @Lob
-    @Column(name = "PICTURE", nullable = true)
-    @Basic(fetch = FetchType.LAZY, optional = false)
-    private byte[] picture;
+    @Column(name = "PICTURE", length = 255, nullable = false)
+    private String picture;
 
     @Column(name = "DATEPOST", nullable = false)
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
@@ -56,7 +54,7 @@ public class Post implements Serializable {
     @JoinColumn(name = "AUTHOR_ID")
     private Author author;
 
-    public Post(int id, String title, String briefing, String text, byte[] picture, Date datepost, Date dateupdate, Author author) {
+    public Post(int id, String title, String briefing, String text, String picture, Date datepost, Date dateupdate, Author author) {
         this.id = id;
         this.title = title;
         this.briefing = briefing;
@@ -102,11 +100,11 @@ public class Post implements Serializable {
         this.text = text;
     }
 
-    public byte[] getPicture() {
+    public String getPicture() {
         return picture;
     }
 
-    public void setPicture(byte[] picture) {
+    public void setPicture(String picture) {
         this.picture = picture;
     }
 

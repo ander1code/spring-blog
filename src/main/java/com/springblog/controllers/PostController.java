@@ -18,7 +18,13 @@ import com.springblog.models.Post;
 import com.springblog.services.daos.PostDAO;
 import com.springblog.services.functions.Alert;
 import com.springblog.services.functions.Picture;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
@@ -73,18 +79,26 @@ public class PostController {
     public String Show(@PathVariable("id") int id, HttpSession session) {
         return "post/show";
     }
-
+    
     @RequestMapping(value = "/show/{id}", method = RequestMethod.PUT)
     public @ResponseBody
-    String GetPostForShow(@PathVariable("id") int id, HttpSession session) {
+    String GetPostForShow(@PathVariable("id") int id, HttpSession session, HttpServletRequest request) {
+        
         Map<String, Object> datas = new HashMap<>();
         Gson gson = new Gson();
         try {
             post = postDAO.GetPostByID(id);
             if (post != null) {
                 if (!"".equals(post.getTitle())) {
+                    
+                    if (post.getPicture() != null && !"".equals(post.getPicture())) {
+                        String imageUrl = "/pictures/" + post.getPicture();
+                        datas.put("picture", imageUrl);
+                    } else {
+                        datas.put("picture", "/pictures/noimage.jpg");
+                    }
+                    
                     datas.put("author", post.getAuthor().getName());
-                    datas.put("picture", picture.ByteToBase64(post.getPicture()));
                     post.setAuthor(null);
                     post.setPicture(null);
                     datas.put("post", post);
@@ -111,7 +125,7 @@ public class PostController {
     @ValidateOnExecution(type = ExecutableType.NONE)
     @RequestMapping(value = "/new", method = RequestMethod.POST)
     public @ResponseBody
-    String Save(@RequestParam("title") String title, @RequestParam("briefing") String briefing, @RequestParam("text") String text, @RequestParam("token") String token, @RequestParam(value = "picture", required = false) CommonsMultipartFile file, HttpSession session) {
+    String Save(@RequestParam("title") String title, @RequestParam("briefing") String briefing, @RequestParam("text") String text, @RequestParam("token") String token, @RequestParam(value = "picture", required = false) CommonsMultipartFile file, HttpSession session) throws IOException {
         Gson gson = new Gson();
         Map<String, Object> datas = new HashMap<>();
         if (session.getAttribute("token").toString().equals(token)) {
@@ -119,13 +133,28 @@ public class PostController {
                 post.setTitle(title);
                 post.setBriefing(briefing);
                 post.setText(text);
-                if (file != null) {
-                    if (file.getBytes().length > 0) {
-                        post.setPicture(file.getBytes());
+                
+                if (file != null && !file.isEmpty()) {
+                    String timestamp = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
+                    String fileName = timestamp + ".jpg";
+
+                    String uploadPath = session.getServletContext().getRealPath("/pictures/");
+                   
+                    File uploadDir = new File(uploadPath);
+                    if (!uploadDir.exists()) {
+                        uploadDir.mkdirs();
                     }
+
+                    File dest = new File(uploadDir, fileName);
+
+                    file.transferTo(dest);
+
+                    post.setPicture(fileName);
+
                 } else {
-                    post.setPicture(null);
+                    post.setPicture("noimage.png");
                 }
+
                 List<String> errors = validationData.ValidationPost(post);
                 if (errors.isEmpty()) {
                     int result = postDAO.InsertPost(post, Integer.parseInt(session.getAttribute("id").toString()));
@@ -150,7 +179,7 @@ public class PostController {
         }
         return gson.toJson(datas);
     }
-    
+
     @RequestMapping(value = "/show/{id}/checkauthor", method = RequestMethod.PUT)
     public @ResponseBody
     String CheckAuthorPost(@PathVariable("id") int id, HttpSession session) {
@@ -159,10 +188,10 @@ public class PostController {
         try {
             post = postDAO.GetPostByID(id);
             if (post != null) {
-                if(!(post.getAuthor().getId() == Integer.parseInt(session.getAttribute("id").toString()))){
+                if (!(post.getAuthor().getId() == Integer.parseInt(session.getAttribute("id").toString()))) {
                     datas.put("check", false);
                     datas.put("alert", alert.GetAlert(2, 2));
-                }else{
+                } else {
                     datas.put("check", true);
                 }
             } else {
@@ -175,7 +204,7 @@ public class PostController {
         }
         return gson.toJson(datas);
     }
-    
+
     @RequestMapping(value = "/edit/{id}", method = RequestMethod.GET)
     public String Edit(@PathVariable("id") int id, HttpSession session) {
         return "post/edit";
@@ -192,9 +221,17 @@ public class PostController {
                 if (!"".equals(post.getTitle())) {
                     if (post.getAuthor().getId() == Integer.parseInt(session.getAttribute("id").toString())) {
                         datas.put("author", post.getAuthor().getName());
-                        datas.put("picture", picture.ByteToBase64(post.getPicture()));
+                        
+                        if (post.getPicture() != null && !"".equals(post.getPicture())) {
+                            String imageUrl = "/pictures/" + post.getPicture();
+                            datas.put("picture", imageUrl);
+                        } else {
+                            datas.put("picture", "/pictures/noimage.jpg");
+                        }
+                        
                         post.setAuthor(null);
                         post.setPicture(null);
+                        
                         datas.put("post", post);
                     } else {
                         datas.put("alert", alert.GetAlert(2, 2));
@@ -218,7 +255,7 @@ public class PostController {
     @ValidateOnExecution(type = ExecutableType.NONE)
     @RequestMapping(value = "/edit/update", method = RequestMethod.POST)
     public @ResponseBody
-    String Update(@RequestParam("id") Integer id, @RequestParam("title") String title, @RequestParam("briefing") String briefing, @RequestParam("text") String text, @RequestParam("token") String token, @RequestParam(value = "picture", required = false) CommonsMultipartFile file, HttpSession session) {
+    String Update(@RequestParam("id") Integer id, @RequestParam("title") String title, @RequestParam("briefing") String briefing, @RequestParam("text") String text, @RequestParam("token") String token, @RequestParam(value = "picture", required = false) CommonsMultipartFile file, HttpSession session) throws IOException {
         Gson gson = new Gson();
         Map<String, Object> datas = new HashMap<>();
         if (session.getAttribute("token").toString().equals(token)) {
@@ -227,23 +264,38 @@ public class PostController {
                 Post post_return = postDAO.GetPostByID(post.getId());
                 if (post_return != null) {
                     if (!"".equals(post_return.getTitle())) {
+                        
                         post.setPicture(post_return.getPicture());
-                        /**
-                         * *****************************************
-                         */
-                        if (file != null) {
-                            if (file.getBytes().length > 0) {
-                                post.setPicture(file.getBytes());
+
+                        if (file != null && !file.isEmpty()) {
+                            String oldFileName = post_return.getPicture();
+
+                            String uploadPath = session.getServletContext().getRealPath("/pictures/");
+
+                            File uploadDir = new File(uploadPath);
+                            if (!uploadDir.exists()) {
+                                uploadDir.mkdirs();
                             }
+
+                            if (oldFileName != null && !oldFileName.isEmpty()) {
+                                File oldFile = new File(uploadPath, oldFileName);
+                                if (oldFile.exists()) {
+                                    oldFile.delete(); 
+                                }
+                            }
+
+                            File dest = new File(uploadDir, oldFileName); 
+                            file.transferTo(dest); 
+
+                            post.setPicture(oldFileName); 
                         }
+
                         post.setTitle(title);
                         post.setBriefing(briefing);
                         post.setText(text);
                         post.setAuthor(post_return.getAuthor());
                         post.setDatePost(post_return.getDatePost());
-                        /**
-                         * *****************************************
-                         */
+                       
                         List<String> errors = validationData.ValidationPost(post);
                         if (errors.isEmpty()) {
                             int result = postDAO.EditPost(post, Integer.parseInt(session.getAttribute("id").toString()));
@@ -289,6 +341,14 @@ public class PostController {
                     if (!"".equals(post.getText())) {
                         int result = postDAO.DeletePost(post, Integer.parseInt(session.getAttribute("id").toString()));
                         if (result != -1) {
+                            
+                            String picture_to_delete = session.getServletContext().getRealPath("/pictures/") + post.getPicture();
+                            File file = new File(picture_to_delete);
+                           
+                            if (file.exists()){
+                                file.delete();
+                            }
+                            
                             datas.put("alert", alert.GetAlert(3, result));
                             datas.put("page", "/index");
                         }

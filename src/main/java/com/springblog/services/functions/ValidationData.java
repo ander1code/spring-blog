@@ -16,7 +16,7 @@ public class ValidationData {
         this.ValidationTitle(post.getTitle());
         this.ValidationBriefing(post.getBriefing());
         this.ValidationText(post.getText());
-        this.ValidationPicture(post.getPicture());
+     //   this.ValidationPicture(post.getPicture());
         return this.list_errors;
     }
 

@@ -11,8 +11,8 @@ app.controller("LoginController", function ($scope, $http, $window, AppService) 
     $scope.usersys = {};
     
     $scope.Reset = function () {
-        $scope.usersys.username = "user";
-        $scope.usersys.password = "user";
+        $scope.usersys.username = "anderson";
+        $scope.usersys.password = "anderson";
         $scope.errors = [];
         AppService.Token().then(function (data) {
             $scope.token = data;
